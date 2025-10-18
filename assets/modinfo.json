@@ -1,0 +1,12 @@
+{
+	"id": "MenuFixes",
+	"name": "Many Menu Fixes",
+	"version": "1.0.0",
+	"target_game_version": "v1.11",
+	"authors": "Zombieseatflesh7",
+	"description": "A compilation of menu fixes, mostly for the remix menu.",
+	"requirements": [],
+	"requirements_names": [],
+	"tags": ["Accessibility"],
+	"checksum_override_version": false
+}
