@@ -11,6 +11,10 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RemixAutoRestart\" />
+  </ItemGroup>
+
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="Exists('$(RainWorldDir)')">
 		<ItemGroup>
 			<Assets Include="$(ProjectDir)../assets/**/*.*" />

@@ -1,9 +1,10 @@
 ﻿using BepInEx;
-using Mono.Cecil.Cil;
+using HarmonyLib;
+using Menu.Remix;
 using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using System;
 using System.Security.Permissions;
-using UnityEngine;
 
 #pragma warning disable CS0618
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
@@ -12,13 +13,23 @@ using UnityEngine;
 namespace MenuFixes;
 
 [BepInPlugin("zombieseatflesh7.MenuFixes", "Menu Fixes", "1.0.0")]
-sealed class Plugin : BaseUnityPlugin
+public class Plugin : BaseUnityPlugin
 {
     public static new BepInEx.Logging.ManualLogSource Logger;
 
     public void OnEnable()
     {
         Logger = base.Logger;
+        On.RainWorld.OnModsInit += OnModsInit;
+    }
 
+    private void OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
+    {
+        // TODO: compatibility check with existing mods that do the same thing
+
+        ScrollFix.AddHooks();
+        ThumbnailFix.AddHooks(); // This hook crashes the game if its applied OnEnable
+
+        orig(self);
     }
 }
