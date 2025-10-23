@@ -1,7 +1,12 @@
 ﻿using BepInEx;
+using Menu;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Security.Permissions;
+using UnityEngine;
 #pragma warning disable CS0618
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 #pragma warning restore CS0618
@@ -14,15 +19,16 @@ public class Plugin : BaseUnityPlugin
     public static new BepInEx.Logging.ManualLogSource Logger;
     private static bool initialized = false;
     private static string _modDirectory = string.Empty;
-    public static string ModDirectory => (_modDirectory == string.Empty) ? _modDirectory = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) : _modDirectory; 
+    public static string ModDirectory => (_modDirectory == string.Empty) ? _modDirectory = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) : _modDirectory;
 
     public void OnEnable()
     {
         Logger = base.Logger;
 
         On.RainWorld.OnModsInit += OnModsInit;
+        RemixAutoRestart.AddHooks(); // must be applied early
     }
-
+    
     private void OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
     {
         orig(self);
@@ -30,9 +36,11 @@ public class Plugin : BaseUnityPlugin
         if (initialized) return;
         initialized = true;
 
-        // TODO: compatibility check with existing mods that do the same thing
+        List<string> activeMods = ModManager.ActiveMods.ConvertAll(new Converter<ModManager.Mod, string>((mod) => { return mod.id; }));
 
-        ScrollFix.AddHooks();
-        OptimizedRemix.Init();
+        if (!activeMods.Contains("ScrollFix"))
+            ScrollFix.AddHooks();
+        if (!activeMods.Contains("OptimizedRemix") && !activeMods.Contains("FasterRemix"))
+            OptimizedRemix.Init();
     }
 }

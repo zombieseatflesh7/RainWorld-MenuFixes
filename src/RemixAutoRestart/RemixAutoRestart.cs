@@ -3,21 +3,46 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace MenuFixes.RemixAutoRestart;
+namespace MenuFixes;
 
 // RemixAutoRestart by Gamer025
 public static class RemixAutoRestart
 {
-    public const string MOD_ID = "Gamer025.RemixAutoRestart";
-
     public static void AddHooks()
     {
-        On.Menu.ModdingMenu.Singal += ModdingMenu_Singal;
+        try
+        {
+            On.Menu.InitializationScreen.Singal += InitializationScreen_Signal;
+            On.Menu.ModdingMenu.Singal += ModdingMenu_Singal;
+        }
+        catch (Exception e) 
+        {
+            Plugin.Logger.LogError("Failed to load RemixAutoRestart");
+            UnityEngine.Debug.LogException(e); 
+        }
+    }
+
+    private static void InitializationScreen_Signal(On.Menu.InitializationScreen.orig_Singal orig, Menu.InitializationScreen self, Menu.MenuObject sender, string message)
+    {
+        if (message == "RESTART")
+        {
+            Restart();
+        }
+        orig(self, sender, message);
     }
 
     private static void ModdingMenu_Singal(On.Menu.ModdingMenu.orig_Singal orig, Menu.ModdingMenu self, Menu.MenuObject sender, string message)
     {
         if (message == "RESTART")
+        {
+            Restart();
+        }
+        orig(self, sender, message);
+    }
+
+    public static void Restart()
+    {
+        try
         {
             var process = Process.GetCurrentProcess();
             string fullPath = $"\"{process.MainModule.FileName}\"";
@@ -67,6 +92,6 @@ public static class RemixAutoRestart
             Process.Start(psi);
             UnityEngine.Application.Quit();
         }
-        orig(self, sender, message);
+        catch (Exception e) { UnityEngine.Debug.LogException(e); }
     }
 }

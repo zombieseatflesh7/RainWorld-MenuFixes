@@ -18,8 +18,15 @@ public static class ScrollFix
         catch (Exception e)
         {
             Plugin.Logger.LogError("Failed to load Scroll Fix");
-            Plugin.Logger.LogError(e.Message + "\n" + e.StackTrace);
+            Debug.LogException(e);
+            RemoveHooks();
         }
+    }
+
+    private static void RemoveHooks()
+    {
+        IL.Menu.Menu.Update -= Menu_UpdateIL;
+        On.MainLoopProcess.RawUpdate -= MainLoopProcess_RawUpdate;
     }
 
     private static void MainLoopProcess_RawUpdate(On.MainLoopProcess.orig_RawUpdate orig, MainLoopProcess self, float dt)
