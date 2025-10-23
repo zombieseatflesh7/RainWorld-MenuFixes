@@ -1,12 +1,7 @@
 ﻿using BepInEx;
-using HarmonyLib;
-using Menu.Remix;
-using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
-using System;
+using System.IO;
+using System.Reflection;
 using System.Security.Permissions;
-using UnityEngine;
-
 #pragma warning disable CS0618
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 #pragma warning restore CS0618
@@ -18,6 +13,8 @@ public class Plugin : BaseUnityPlugin
 {
     public static new BepInEx.Logging.ManualLogSource Logger;
     private static bool initialized = false;
+    private static string _modDirectory = string.Empty;
+    public static string ModDirectory => (_modDirectory == string.Empty) ? _modDirectory = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) : _modDirectory; 
 
     public void OnEnable()
     {
@@ -26,28 +23,16 @@ public class Plugin : BaseUnityPlugin
         On.RainWorld.OnModsInit += OnModsInit;
     }
 
-    // most of this code breaks if its run OnEnable for some reason lmao
     private void OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
     {
         orig(self);
 
-        if (!initialized)
-        {
-            initialized = true;
-            try
-            {
-                AssetBundle assetBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("menufixesbundle"));
-                self.Shaders.Add("MenuFixes.Greyscale", FShader.CreateShader("MenuFixes.Greyscale", assetBundle.LoadAsset<Shader>("Assets/Shaders/Greyscale.shader")));
+        if (initialized) return;
+        initialized = true;
 
-                // TODO: compatibility check with existing mods that do the same thing
+        // TODO: compatibility check with existing mods that do the same thing
 
-                ScrollFix.AddHooks();
-                OptimizedRemix.AddHooks();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogException(ex);
-            }
-        }
+        ScrollFix.AddHooks();
+        OptimizedRemix.Init();
     }
 }

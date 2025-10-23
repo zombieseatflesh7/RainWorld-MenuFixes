@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace MenuFixes.RemixAutoRestart;
 
+// RemixAutoRestart by Gamer025
 public static class RemixAutoRestart
 {
     public const string MOD_ID = "Gamer025.RemixAutoRestart";

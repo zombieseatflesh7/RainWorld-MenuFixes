@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace MenuFixes;
 
+// ScrollFix by Zombieseatflesh7
 public static class ScrollFix
 {
     public static void AddHooks()
