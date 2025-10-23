@@ -1,9 +1,7 @@
 ﻿using BepInEx;
-using Menu;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Security.Permissions;
 using UnityEngine;
@@ -42,5 +40,7 @@ public class Plugin : BaseUnityPlugin
             ScrollFix.AddHooks();
         if (!activeMods.Contains("OptimizedRemix") && !activeMods.Contains("FasterRemix"))
             OptimizedRemix.Init();
+        if (!activeMods.Contains("magica.exactrequirements"))
+            RemixExactRequirements.AddHooks();
     }
 }
