@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Security.Permissions;
-using UnityEngine;
 #pragma warning disable CS0618
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 #pragma warning restore CS0618
@@ -42,13 +41,18 @@ public class Plugin : BaseUnityPlugin
 
         List<string> activeMods = ModManager.ActiveMods.ConvertAll(new Converter<ModManager.Mod, string>((mod) => { return mod.id; }));
 
-        if (!activeMods.Contains("ScrollFix"))
-            ScrollFix.AddHooks();
         if (!activeMods.Contains("OptimizedRemix") && !activeMods.Contains("FasterRemix"))
             OptimizedRemix.Init();
+        if (!activeMods.Contains("ScrollFix"))
+            ScrollFix.AddHooks();
         if (!activeMods.Contains("magica.exactrequirements"))
             RemixExactRequirements.AddHooks();
         if (!activeMods.Contains("kevadroz.no_mod_update_confirm"))
             NoModUpdateConfirm.AddHooks();
+        if (!activeMods.Contains("fargegoty.workshopbutton"))
+            ExtraModButtons.showWorkshopButton = true;
+        if (!activeMods.Contains("darkninja.ModInExplorerButton"))
+            ExtraModButtons.showFileExplorerButton = true;
+        ExtraModButtons.Init();
     }
 }

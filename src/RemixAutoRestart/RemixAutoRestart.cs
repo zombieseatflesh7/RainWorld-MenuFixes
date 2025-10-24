@@ -20,10 +20,11 @@ public static class RemixAutoRestart
             IL.ModManager.RefreshModsLists += ModManager_RefreshModLists_IL;
             On.Menu.InitializationScreen.Singal += InitializationScreen_Signal;
             On.Menu.ModdingMenu.Singal += ModdingMenu_Singal;
+            Plugin.Logger.LogInfo("Loaded Remix Auto Restarter");
         }
         catch (Exception e) 
         {
-            Plugin.Logger.LogError("Failed to load RemixAutoRestart");
+            Plugin.Logger.LogError("Failed to load Remix Auto Restarter");
             Plugin.Logger.LogError(e); 
         }
     }

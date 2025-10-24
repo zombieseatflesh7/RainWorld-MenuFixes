@@ -43,6 +43,7 @@ public static class NoModUpdateConfirm
     {
         On.Menu.DialogBoxNotify.ctor += OnNewDialogBox;
         On.Menu.DialogBoxNotify.Update += OnDialogBoxUpdate;
+        Plugin.Logger.LogInfo("Loaded No Mod Update Confirm");
     }
 
     private static bool ShouldAutoConfirm(string signalText)

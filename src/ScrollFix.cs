@@ -14,6 +14,7 @@ public static class ScrollFix
         {
             IL.Menu.Menu.Update += Menu_UpdateIL;
             On.MainLoopProcess.RawUpdate += MainLoopProcess_RawUpdate;
+            Plugin.Logger.LogInfo("Loaded Scroll Fix");
         }
         catch (Exception e)
         {

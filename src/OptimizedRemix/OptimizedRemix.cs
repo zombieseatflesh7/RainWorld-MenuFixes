@@ -45,7 +45,7 @@ public static class OptimizedRemix
         }
         catch (Exception e) 
         {
-            Plugin.Logger.LogError("Failed to resize thumbnails");
+            Plugin.Logger.LogError("Failed to load Optimized Remix: resize thumbnails");
             Plugin.Logger.LogError(e); 
         }
     }
@@ -58,10 +58,11 @@ public static class OptimizedRemix
             AssetBundle assetBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("menufixesbundle"));
             greyscaleShader = FShader.CreateShader("OptimizedRemix.Greyscale", assetBundle.LoadAsset<Shader>("Assets/Shaders/Greyscale.shader"));
             RWCustom.Custom.rainWorld.Shaders.Add("OptimizedRemix.Greyscale", greyscaleShader);
+            Plugin.Logger.LogInfo("Loaded Optimized Remix: greyscale shader");
         }
         catch (Exception e) 
         {
-            Plugin.Logger.LogError("Failed to load greyscale shader");
+            Plugin.Logger.LogError("Failed to load Optimized Remix: greyscale shader");
             Plugin.Logger.LogError(e); 
         }
     }
@@ -106,10 +107,11 @@ public static class OptimizedRemix
                 try { orig(self, timeStacker); }
                 catch (Exception e) { Plugin.Logger.LogError(e); }
             };
+            Plugin.Logger.LogInfo("Loaded Optimized Remix: hooks");
         }
         catch (Exception e)
         {
-            Plugin.Logger.LogError("Failed to load Optimized Remix hooks");
+            Plugin.Logger.LogError("Failed to load Optimized Remix: hooks");
             Plugin.Logger.LogError(e);
             RemoveHooks();
         }
