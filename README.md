@@ -1,11 +1,12 @@
-[b]A compilation of many menu fixes from the modding community, mostly for the remix menu.[/b]
+# [Many Menu Fixes](https://steamcommunity.com/sharedfiles/filedetails/?id=3592352161)
 
-[h1] Included Mods [/h1] [hr] [list]
-[*] [h3] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3591474010]Optimized Remix Menu[/url] by Zombieseatflesh7
-[*] [h3] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2935290634]Remix Auto Restarter[/url] by Gamer025
-[*] [h3] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3037831208]No Mod Update Confirm[/url] by Kevadroz
-[*] [h3] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3370209000]Remix Exact Requirements[/url] by MagicaJaphet
-[*] [h3] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3489403478]Scroll Wheel Fix[/url] by Zombieseatflesh7
-[*] [h3] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3404146861]Workshop Butoon[/url] by farge_goty
-[*] [h3] [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3510243964]View Mod in File Explorer Button[/url] by DarkNinja
-[/h3] [/list]
+A compilation of many menu fixes from the modding community, mostly for the remix menu.
+
+## Included Mods
+- [Optimized Remix Menu](https://steamcommunity.com/sharedfiles/filedetails/?id=3591474010) by Zombieseatflesh7
+- [Remix Auto Restarter](https://steamcommunity.com/sharedfiles/filedetails/?id=2935290634) by Gamer025
+- [No Mod Update Confirm](https://steamcommunity.com/sharedfiles/filedetails/?id=3037831208) by Kevadroz
+- [Remix Exact Requirements](https://steamcommunity.com/sharedfiles/filedetails/?id=3370209000) by MagicaJaphet
+- [Scroll Wheel Fix](https://steamcommunity.com/sharedfiles/filedetails/?id=3489403478) by Zombieseatflesh7
+- [Workshop Button](https://steamcommunity.com/sharedfiles/filedetails/?id=3404146861) by farge_goty
+- [View Mod in File Explorer Button](https://steamcommunity.com/sharedfiles/filedetails/?id=3510243964) by DarkNinja
