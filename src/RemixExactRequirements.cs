@@ -20,7 +20,7 @@ public static class RemixExactRequirements
         catch (Exception e)
         {
             Plugin.Logger.LogError("Failed to load Remix Exact Rquirements");
-            Debug.LogException(e);
+            Plugin.Logger.LogError(e);
         }
     }
 
@@ -47,7 +47,7 @@ public static class RemixExactRequirements
                 return string.Join(", ", hashSet);
             }
         }
-        catch (Exception e) { Debug.LogException(e); }
+        catch (Exception e) { Plugin.Logger.LogError(e); }
         return result;
     }
 

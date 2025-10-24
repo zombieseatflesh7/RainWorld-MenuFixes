@@ -1,7 +1,12 @@
-﻿using System.Diagnostics;
+﻿using HarmonyLib;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Threading;
 
 namespace MenuFixes;
 
@@ -12,14 +17,50 @@ public static class RemixAutoRestart
     {
         try
         {
+            IL.ModManager.RefreshModsLists += ModManager_RefreshModLists_IL;
             On.Menu.InitializationScreen.Singal += InitializationScreen_Signal;
             On.Menu.ModdingMenu.Singal += ModdingMenu_Singal;
         }
         catch (Exception e) 
         {
             Plugin.Logger.LogError("Failed to load RemixAutoRestart");
-            UnityEngine.Debug.LogException(e); 
+            Plugin.Logger.LogError(e); 
         }
+    }
+
+    private static void ModManager_RefreshModLists_IL(ILContext il)
+    {
+        ILCursor c = new ILCursor(il);
+
+        c.GotoNext( // File.WriteAllText(Path.Combine(Custom.RootFolderDirectory(), "enabledModsVersion.txt"), "v1.11.3");
+            i => i.MatchCall(AccessTools.Method(typeof(RWCustom.Custom), "RootFolderDirectory")),
+            i => i.MatchLdstr("enabledModsVersion.txt"),
+            i => i.MatchCall(AccessTools.Method(typeof(Path), "Combine", new Type[] { typeof(string), typeof(string)} ))
+            );
+
+        ILLabel destination = c.DefineLabel();
+        c.EmitDelegate(() => // the same operation, but looped until it succeeds.
+        {
+            bool success = false;
+            while(!success)
+            {
+                try
+                {
+                    Plugin.Logger.LogDebug("Writing to enabledModsVersion.txt.");
+                    string version = typeof(RainWorld).GetField("GAME_VERSION_STRING").GetValue(null) as string;
+                    File.WriteAllText(Path.Combine(RWCustom.Custom.RootFolderDirectory(), "enabledModsVersion.txt"), version);
+                    success = true;
+                }
+                catch
+                {
+                    Plugin.Logger.LogWarning("Error writing to enabledModsVersion.txt. Trying again.");
+                    Thread.Sleep(50);
+                }
+            }
+        });
+        c.Emit(OpCodes.Br_S, destination);
+        c.Goto(c.Index + 5);
+        c.MarkLabel(destination);
     }
 
     private static void InitializationScreen_Signal(On.Menu.InitializationScreen.orig_Singal orig, Menu.InitializationScreen self, Menu.MenuObject sender, string message)
@@ -92,6 +133,6 @@ public static class RemixAutoRestart
             Process.Start(psi);
             UnityEngine.Application.Quit();
         }
-        catch (Exception e) { UnityEngine.Debug.LogException(e); }
+        catch (Exception e) { Plugin.Logger.LogError(e); }
     }
 }

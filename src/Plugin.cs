@@ -21,15 +21,21 @@ public class Plugin : BaseUnityPlugin
 
     public void OnEnable()
     {
-        Logger = base.Logger;
+        try
+        {
+            Logger = base.Logger;
 
-        On.RainWorld.OnModsInit += OnModsInit;
-        RemixAutoRestart.AddHooks(); // must be applied early
+            On.RainWorld.OnModsInit += OnModsInit;
+            RemixAutoRestart.AddHooks(); // must be applied early
+        }
+        catch (Exception e) { Logger.LogError(e); }
     }
     
     private void OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
     {
         orig(self);
+
+        MachineConnector.SetRegisteredOI("MenuFixes", Options.Instance);
 
         if (initialized) return;
         initialized = true;
@@ -42,5 +48,7 @@ public class Plugin : BaseUnityPlugin
             OptimizedRemix.Init();
         if (!activeMods.Contains("magica.exactrequirements"))
             RemixExactRequirements.AddHooks();
+        if (!activeMods.Contains("kevadroz.no_mod_update_confirm"))
+            NoModUpdateConfirm.AddHooks();
     }
 }

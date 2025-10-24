@@ -18,7 +18,7 @@ public static class ScrollFix
         catch (Exception e)
         {
             Plugin.Logger.LogError("Failed to load Scroll Fix");
-            Debug.LogException(e);
+            Plugin.Logger.LogError(e);
             RemoveHooks();
         }
     }

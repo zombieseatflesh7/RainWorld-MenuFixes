@@ -46,7 +46,7 @@ public static class OptimizedRemix
         catch (Exception e) 
         {
             Plugin.Logger.LogError("Failed to resize thumbnails");
-            Debug.LogException(e); 
+            Plugin.Logger.LogError(e); 
         }
     }
 
@@ -62,7 +62,7 @@ public static class OptimizedRemix
         catch (Exception e) 
         {
             Plugin.Logger.LogError("Failed to load greyscale shader");
-            Debug.LogException(e); 
+            Plugin.Logger.LogError(e); 
         }
     }
 
@@ -89,28 +89,28 @@ public static class OptimizedRemix
             On.Menu.Remix.InternalOI_Stats.Initialize += (orig, self) =>
             {
                 try { orig(self); }
-                catch (Exception e) { Debug.LogException(e); }
+                catch (Exception e) { Plugin.Logger.LogError(e); }
             };
             On.Menu.Remix.InternalOI_Stats._PreviewMod += (orig, self, button) =>
             {
                 try { orig(self, button); }
-                catch (Exception e) { Debug.LogException(e); }
+                catch (Exception e) { Plugin.Logger.LogError(e); }
             };
             On.Menu.Remix.MenuModList.ModButton.ctor += (orig, self, list, index) =>
             {
                 try { orig(self, list, index); }
-                catch (Exception e) { Debug.LogException(e); }
+                catch (Exception e) { Plugin.Logger.LogError(e); }
             };
             On.Menu.Remix.MenuModList.ModButton.GrafUpdate += (orig, self, timeStacker) =>
             {
                 try { orig(self, timeStacker); }
-                catch (Exception e) { Debug.LogException(e); }
+                catch (Exception e) { Plugin.Logger.LogError(e); }
             };
         }
         catch (Exception e)
         {
             Plugin.Logger.LogError("Failed to load Optimized Remix hooks");
-            Debug.LogException(e);
+            Plugin.Logger.LogError(e);
             RemoveHooks();
         }
     }
@@ -252,7 +252,7 @@ public static class OptimizedRemix
             self._thumbProcessed = true;
             self._UpdateThumbnail();
         }
-        catch (Exception e) { Debug.LogException(e); }
+        catch (Exception e) { Plugin.Logger.LogError(e); }
     }
 
     // rewritten to use shaders for the greyscale effect
@@ -308,7 +308,7 @@ public static class OptimizedRemix
             modButtonThumbnails.Remove(self);
             orig(self);
         }
-        catch (Exception e) { Debug.LogException(e); }
+        catch (Exception e) { Plugin.Logger.LogError(e); }
     }
 
     private static void LoadModThumbnail(MenuModList.ModButton button)
@@ -350,7 +350,7 @@ public static class OptimizedRemix
         }
         catch (Exception e)
         {
-            Debug.LogException(e);
+            Plugin.Logger.LogError(e);
             button._PingThumbnailLoaded(true);
         }
     }
