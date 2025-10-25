@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace MenuFixes.Mods;
@@ -48,12 +50,65 @@ public static class RemixAutoRestart
 
         try
         {
-            string steamUrl = $"steam://rungameid/{312520}";
-            Process.Start(new ProcessStartInfo
+            if (RWCustom.Custom.rainWorld.processManager.mySteamManager != null) // steam version
             {
-                FileName = steamUrl,
-                UseShellExecute = true
-            });
+                string steamUrl = $"steam://rungameid/{312520}";
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = steamUrl,
+                    UseShellExecute = true
+                });
+            }
+            else // non - steam version
+            {
+                var process = Process.GetCurrentProcess();
+                string fullPath = $"\"{process.MainModule.FileName}\"";
+
+                var s_SavedEnv = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
+                List<string> itemsToRemove = new List<string>();
+                foreach (DictionaryEntry ent in s_SavedEnv)
+                {
+                    if (ent.Key.ToString().StartsWith("DOORSTOP"))
+                    {
+                        itemsToRemove.Add(ent.Key.ToString());
+                    }
+                }
+
+                foreach (var item in itemsToRemove)
+                    s_SavedEnv.Remove(item);
+
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.EnvironmentVariables.Clear();
+                foreach (DictionaryEntry ent in s_SavedEnv)
+                {
+                    psi.EnvironmentVariables.Add((string)ent.Key, (string)ent.Value);
+                }
+                psi.UseShellExecute = false;
+                psi.FileName = fullPath;
+
+                //Command line args
+                List<string> new_args = new List<string>();
+                string[] current_args = Environment.GetCommandLineArgs();
+                for (int i = 0; i < current_args.Length; i++)
+                {
+                    //Skip the first elements because that is the process file itself
+                    if (i == 0)
+                        continue;
+
+                    //Something (Doorstop?) is adding a logFile arg to the process in the format "-logFile C:\path\to\Rain World\output.log"
+                    //We need to skip that arg and the following one (the logfile path itself) otherwise the process args just keep growing with more and more -logFile args
+                    if (current_args[i] == "-logFile")
+                    {
+                        i++;
+                        continue;
+                    }
+
+                    new_args.Add(current_args[i]);
+                }
+                psi.Arguments = string.Join(" ", new_args.ToArray());
+                Process.Start(psi);
+            }
+
             UnityEngine.Application.Quit();
             restarting = true;
         }
