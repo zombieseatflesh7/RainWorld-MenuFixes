@@ -1,5 +1,8 @@
-﻿using System;
+﻿using IL.JollyCoop.JollyMenu;
+using Menu.Remix;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -9,15 +12,14 @@ namespace MenuFixes.Mods;
 // ModlistHotload by farge_goty
 public static class ModlistHotload
 {
-    private static RainWorld rainWorldInstance;
+    private static RainWorld rainWorld => RWCustom.Custom.rainWorld;
+
     private static FileSystemWatcher modsWatcher;
     private static FileSystemWatcher workshopWatcher;
 
     private static List<string> modDirectories = new List<string>();
     private static List<string> lastMods = new List<string>();
     private static readonly object directoriesLock = new object();
-
-    private static bool newMods = false;
 
     public static void AddHooks()
     {
@@ -54,6 +56,10 @@ public static class ModlistHotload
             }
 
             On.Menu.MainMenu.ModListButtonPressed += MainMenuModListButtonPressed;
+            On.Menu.ModdingMenu.Update += Update;
+
+            On.Menu.Remix.MenuModList.GetModButton += MenuModList_GetModButton;
+
             Plugin.Logger.LogInfo("Loaded Modlist Hotload");
         }
         catch (Exception e)
@@ -63,7 +69,7 @@ public static class ModlistHotload
         }
     }
 
-    private static void CheckForNewMods()
+    private static bool CheckForNewMods()
     {
         bool modsChanged = false;
         List<string> currentMods = new List<string>();
@@ -89,23 +95,37 @@ public static class ModlistHotload
             }
         }
 
-        if (modsChanged)
-        {
-            newMods = true;
-        }
+        return modsChanged;
     }
 
-    private static void RefreshModsList()
+    private static void RefreshMenuModList()
     {
-        try
+        if (RWCustom.Custom.rainWorld.processManager.currentMainLoop is not Menu.ModdingMenu menu)
+            return;
+
+        string[] selectedMods = ConfigContainer.menuTab.modList._currentSelections.Clone() as string[];
+
+        // reload whole mod menu
+        menu.pages[0].RemoveSubObject(menu.cfgContainer);
+        menu.cfgContainer._ShutdownConfigContainer();
+        menu.cfgContainer = new ConfigContainer(menu, menu.pages[0]);
+        menu.pages[0].subObjects.Add(menu.cfgContainer);
+
+        // reapply mod selections
+        MenuModList modlist = ConfigContainer.menuTab.modList;
+
+        foreach (MenuModList.ModButton btn in modlist.modButtons)
+            if (btn.selectEnabled)
+                modlist._ToggleMod_SubDisable(btn);
+
+        for (int i = 0; i < selectedMods.Length; i++)
         {
-            if (rainWorldInstance == null) return;
-            ModManager.RefreshModsLists(rainWorldInstance);
+            MenuModList.ModButton btn = modlist.GetModButton(selectedMods[i]);
+            int order = i;
+            if (btn != null)
+                modlist._ToggleMod_SubEnable(btn, ref order);
         }
-        catch (Exception e)
-        {
-            Plugin.Logger.LogError($"Error refreshing mods: {e}");
-        }
+        modlist.RefreshAllButtons();
     }
 
     public static void DisposeWatchers()
@@ -142,16 +162,47 @@ public static class ModlistHotload
         watcher.EnableRaisingEvents = true;
     }
 
+    private static void OnNewDirectoryAdded(object sender, FileSystemEventArgs e)
+    {
+        modDirectories = new List<string>();
+    }
+
+    private static void OnNewDirectoryRemoved(object sender, FileSystemEventArgs e)
+    {
+        modDirectories.Remove(e.FullPath);
+    }
+
+    private static float refreshTimer = 0;
+
     private static void MainMenuModListButtonPressed(On.Menu.MainMenu.orig_ModListButtonPressed orig, Menu.MainMenu self)
     {
         try
         {
-            CheckForNewMods();
-            if (newMods)
+            refreshTimer = 40 * 5;
+            if (CheckForNewMods())
+                ModManager.RefreshModsLists(rainWorld);
+        }
+        catch (Exception e) { Plugin.Logger.LogError(e); }
+
+        orig(self);
+    }
+
+    private static void Update(On.Menu.ModdingMenu.orig_Update orig, Menu.ModdingMenu self)
+    {
+        try
+        { 
+            if (refreshTimer > 0)
             {
-                rainWorldInstance = self.manager.rainWorld;
-                RefreshModsList();
-                newMods = false;
+                refreshTimer--;
+                if (refreshTimer == 0)
+                {
+                    refreshTimer = self.framesPerSecond;
+                    if (CheckForNewMods())
+                    {
+                        ModManager.RefreshModsLists(rainWorld);
+                        RefreshMenuModList();
+                    }
+                }
             }
         }
         catch (Exception e) { Plugin.Logger.LogError(e); }
@@ -159,13 +210,12 @@ public static class ModlistHotload
         orig(self);
     }
 
-    private static void OnNewDirectoryAdded(object sender, FileSystemEventArgs e)
+    private static MenuModList.ModButton MenuModList_GetModButton(On.Menu.Remix.MenuModList.orig_GetModButton orig, MenuModList self, string modID)
     {
-        modDirectories.Add(e.FullPath);
-    }
-
-    private static void OnNewDirectoryRemoved(object sender, FileSystemEventArgs e)
-    {
-        modDirectories.Remove(e.FullPath);
+        try // fix crash
+        {
+            return self.modButtons[ConfigContainer.FindItfIndex(modID)];
+        }
+        catch { return null; }
     }
 }
