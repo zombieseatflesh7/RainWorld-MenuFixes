@@ -1,9 +1,6 @@
-﻿using BepInEx.Logging;
-using Menu;
+﻿using Menu;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
 
 namespace MenuFixes.Mods;
 
