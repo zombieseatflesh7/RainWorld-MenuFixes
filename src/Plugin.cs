@@ -63,5 +63,12 @@ public class Plugin : BaseUnityPlugin
         if (!activeMods.Contains("darkninja.ModInExplorerButton"))
             ExtraModButtons.showFileExplorerButton = true;
         ExtraModButtons.Init();
+        if (!activeMods.Contains("fargegoty.ModlistHotload"))
+            ModlistHotload.AddHooks();
+    }
+
+    public void OnDisable()
+    {
+        ModlistHotload.DisposeWatchers();
     }
 }
