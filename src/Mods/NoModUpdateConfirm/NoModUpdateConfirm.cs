@@ -1,4 +1,5 @@
 ﻿using Menu;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 
@@ -10,12 +11,13 @@ public static class NoModUpdateConfirm
     private static bool onModUpdate => Options.NMUC_onModUpdate.Value;
     private static bool onModReload => Options.NMUC_onModReload.Value;
     private static float delay => Options.NMUC_delay.Value;
+
     private static readonly Dictionary<WeakReference<DialogBoxNotify>, float> trackedDialogs = [];
     private static bool initIssue = false;
 
     private static bool ShouldClickNow(DialogBoxNotify dialog)
     {
-        List<WeakReference<DialogBoxNotify>> referencesToRemove = [];
+        PurgeDeadDialogs();
 
         foreach (KeyValuePair<WeakReference<DialogBoxNotify>, float> entry in trackedDialogs)
         {
@@ -24,8 +26,6 @@ public static class NoModUpdateConfirm
             {
                 if (dialog.Equals(dialog2))
                 {
-                    foreach (WeakReference<DialogBoxNotify> reference2 in referencesToRemove)
-                        trackedDialogs.Remove(reference2);
 
                     float dialogTime = entry.Value;
                     if (float.IsNegativeInfinity(dialogTime))
@@ -45,30 +45,93 @@ public static class NoModUpdateConfirm
                     }
                 }
             }
-            else
-                referencesToRemove.Add(reference);
         }
-
-        foreach (WeakReference<DialogBoxNotify> reference in referencesToRemove)
-            trackedDialogs.Remove(reference);
-
+        WeakReference<DialogBoxNotify> newReference = new(dialog);
         if (delay > 0.0f)
         {
-            trackedDialogs.Add(new WeakReference<DialogBoxNotify>(dialog), delay);
+            trackedDialogs.Add(newReference, delay);
             return false;
         }
         else
         {
-            trackedDialogs.Add(new WeakReference<DialogBoxNotify>(dialog), float.NegativeInfinity);
+            trackedDialogs.Add(newReference, float.NegativeInfinity);
             return true;
         }
+    }
+
+    private static void MarkDialogClicked(DialogBoxNotify dialog)
+    {
+        PurgeDeadDialogs();
+
+        foreach (KeyValuePair<WeakReference<DialogBoxNotify>, float> entry in trackedDialogs)
+        {
+            WeakReference<DialogBoxNotify> reference = entry.Key;
+            if (reference.TryGetTarget(out DialogBoxNotify dialog2) && dialog.Equals(dialog2))
+            {
+                trackedDialogs[reference] = float.NegativeInfinity;
+                return;
+            }
+        }
+
+        trackedDialogs.Add(new WeakReference<DialogBoxNotify>(dialog), float.NegativeInfinity);
+    }
+
+    private static void PurgeDeadDialogs()
+    {
+        List<WeakReference<DialogBoxNotify>> referencesToRemove = [];
+
+        foreach (WeakReference<DialogBoxNotify> reference in trackedDialogs.Keys)
+            if (!reference.TryGetTarget(out _))
+                referencesToRemove.Add(reference);
+
+        foreach (WeakReference<DialogBoxNotify> reference in referencesToRemove)
+            trackedDialogs.Remove(reference);
     }
 
     public static void AddHooks()
     {
         On.Menu.DialogBoxNotify.Update += OnDialogBoxUpdate;
         On.ModManager.CheckInitIssues += ModManager_CheckInitIssues;
+        On.Menu.InitializationScreen.Singal += OnInitSingal;
+        On.Menu.ModdingMenu.Singal += OnModMenuSingal;
+
+
         Plugin.Logger.LogInfo("Loaded No Mod Update Confirm");
+    }
+
+    private static void OnInitSingal(On.Menu.InitializationScreen.orig_Singal orig, InitializationScreen self, MenuObject sender, string message)
+    {
+        try
+        {
+            if (message == "RESTART" || message == "REAPPLY")
+                foreach (MenuObject menuObject in self.pages[0].subObjects)
+                    if (menuObject is DialogBoxNotify dialog && dialog.continueButton == sender)
+                    {
+                        MarkDialogClicked(dialog);
+                        break;
+                    }
+        }
+        catch (Exception e) { Plugin.Logger.LogError(e); }
+
+        orig(self, sender, message);
+    }
+
+    private static void OnModMenuSingal(On.Menu.ModdingMenu.orig_Singal orig, ModdingMenu self, MenuObject sender, string message)
+    {
+        try
+        {
+            if (message == "RESTART" || message == "REAPPLY")
+                foreach (MenuObject menuObject in self.pages[0].subObjects)
+                    if (menuObject is DialogBoxNotify dialog && dialog.continueButton == sender)
+                    {
+                        Plugin.Logger.LogMessage("button clicked");
+                        MarkDialogClicked(dialog);
+                        break;
+                    }
+        }
+        catch (Exception e) { Plugin.Logger.LogError(e); }
+
+        orig(self, sender, message);
     }
 
     private static bool ShouldAutoConfirm(DialogBoxNotify self)
@@ -81,9 +144,9 @@ public static class NoModUpdateConfirm
 
     private static void OnDialogBoxUpdate(On.Menu.DialogBoxNotify.orig_Update orig, DialogBoxNotify self)
     {
+        orig(self);
         try
         {
-            orig(self);
             if (ShouldAutoConfirm(self) && ShouldClickNow(self) && !initIssue)
                 self.continueButton.Clicked();
         }
