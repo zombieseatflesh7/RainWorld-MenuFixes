@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using TeximpNet;
 using TeximpNet.Unmanaged;
 
-namespace MenuFixes;
+namespace MenuFixes.Mods;
 
 // Texture Resizer by Rawra
 internal class TextureResizer
@@ -52,11 +52,11 @@ internal class TextureResizer
     // serializable holder for both metadata and full content hashes.
     public class CacheEntry
     {
-        public UInt64 MetaHash { get; set; }
-        public UInt64 ContentHash { get; set; }
+        public ulong MetaHash { get; set; }
+        public ulong ContentHash { get; set; }
     }
 
-    private unsafe static UInt64 ComputeMetaHash(FileInfo fi)
+    private unsafe static ulong ComputeMetaHash(FileInfo fi)
     {
         // combine length + last write ticks into bytes then hash
         byte[] metaBytes = new byte[16];
@@ -68,7 +68,7 @@ internal class TextureResizer
         }
     }
 
-    private unsafe UInt64 ComputeFileHash(string filePath)
+    private unsafe ulong ComputeFileHash(string filePath)
     {
         using FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         byte[] buffer = new byte[8192];
@@ -91,12 +91,12 @@ internal class TextureResizer
         if (!fi.Exists)
             return false;
 
-        UInt64 metaHash = ComputeMetaHash(fi);
+        ulong metaHash = ComputeMetaHash(fi);
 
         if (!_textureCache.TryGetValue(filePath, out CacheEntry entry))
         {
             // No cache entry: compute full hash, store both, return true
-            UInt64 contentHash = ComputeFileHash(filePath);
+            ulong contentHash = ComputeFileHash(filePath);
             CacheEntry newEntry = new CacheEntry { MetaHash = metaHash, ContentHash = contentHash };
             _textureCache[filePath] = newEntry;
             Plugin.Logger.LogDebug($"FileNeedsUpdate: No cache entry for {filePath} (stored content hash).");
@@ -110,7 +110,7 @@ internal class TextureResizer
         }
 
         // Metadata changed: verify by computing full content hash
-        UInt64 newContentHash = ComputeFileHash(filePath);
+        ulong newContentHash = ComputeFileHash(filePath);
         if (newContentHash == entry.ContentHash)
         {
             // content unchanged, only metadata changed: update metaHash and don't reprocess

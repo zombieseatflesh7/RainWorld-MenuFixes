@@ -3,7 +3,7 @@ using MonoMod.Cil;
 using System;
 using UnityEngine;
 
-namespace MenuFixes;
+namespace MenuFixes.Mods;
 
 // ScrollFix by Zombieseatflesh7
 public static class ScrollFix

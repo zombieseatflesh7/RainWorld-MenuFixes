@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace MenuFixes;
+namespace MenuFixes.Mods;
 
 // Remix Exact Requirements by MagicaJaphet
 public static class RemixExactRequirements
@@ -37,7 +37,7 @@ public static class RemixExactRequirements
                     string text = OptionInterface.Translate(mod.requirements[i] + "-name");
                     if (text == mod.requirements[i] + "-name")
                     {
-                        text = ((i >= mod.requirementsNames.Length || string.IsNullOrEmpty(mod.requirementsNames[i])) ? mod.requirements[i] : mod.requirementsNames[i]);
+                        text = i >= mod.requirementsNames.Length || string.IsNullOrEmpty(mod.requirementsNames[i]) ? mod.requirements[i] : mod.requirementsNames[i];
                     }
                     hashSet.Add(text);
                 }

@@ -7,7 +7,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace MenuFixes; 
+namespace MenuFixes.Mods; 
 
 // Optimized Remix by Zombieseatflesh7
 public static class OptimizedRemix

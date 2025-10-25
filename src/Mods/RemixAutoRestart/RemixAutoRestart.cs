@@ -8,11 +8,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
-namespace MenuFixes;
+namespace MenuFixes.Mods;
 
 // RemixAutoRestart by Gamer025
 public static class RemixAutoRestart
 {
+    private static bool restarting = false;
+
     public static void AddHooks()
     {
         try
@@ -84,6 +86,9 @@ public static class RemixAutoRestart
 
     public static void Restart()
     {
+        if (restarting)
+            return;
+
         try
         {
             var process = Process.GetCurrentProcess();
@@ -130,9 +135,10 @@ public static class RemixAutoRestart
 
                 new_args.Add(current_args[i]);
             }
-            psi.Arguments = String.Join(" ", new_args.ToArray());
+            psi.Arguments = string.Join(" ", new_args.ToArray());
             Process.Start(psi);
             UnityEngine.Application.Quit();
+            restarting = true;
         }
         catch (Exception e) { Plugin.Logger.LogError(e); }
     }

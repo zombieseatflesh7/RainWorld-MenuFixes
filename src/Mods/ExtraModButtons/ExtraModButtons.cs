@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace MenuFixes;
+namespace MenuFixes.Mods;
 
 // Workshop button by farge_goty
 // File explorer button by DarkNinja
