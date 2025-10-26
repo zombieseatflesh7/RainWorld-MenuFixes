@@ -28,8 +28,8 @@ public static class OptimizedRemix
     {
         try
         {
-            LoadLibraryA(Path.Combine(Plugin.ModDirectory, "native", "nvtt.dll"));
-            LoadLibraryA(Path.Combine(Plugin.ModDirectory, "native", "FreeImage.dll"));
+            LoadLibraryA(AssetManager.ResolveFilePath("native/nvtt.dll"));
+            LoadLibraryA(AssetManager.ResolveFilePath("native/FreeImage.dll"));
 
             List<string> modPNGList = new List<string>(ModManager.InstalledMods.Count);
             foreach (var m in ModManager.InstalledMods)

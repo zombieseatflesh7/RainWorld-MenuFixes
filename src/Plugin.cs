@@ -21,9 +21,7 @@ public class Plugin : BaseUnityPlugin
 
     public static new BepInEx.Logging.ManualLogSource Logger;
     private static bool initialized = false;
-    private static string _modDirectory = string.Empty;
-    public static string ModDirectory => (_modDirectory == string.Empty) ? _modDirectory = Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) : _modDirectory;
-
+    
     public void OnEnable()
     {
         Logger = base.Logger;
