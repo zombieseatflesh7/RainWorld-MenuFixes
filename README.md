@@ -10,4 +10,4 @@ A compilation of many menu fixes from the modding community, mostly for the remi
 - [Scroll Wheel Fix](https://steamcommunity.com/sharedfiles/filedetails/?id=3489403478) by Zombieseatflesh7
 - [Workshop Button](https://steamcommunity.com/sharedfiles/filedetails/?id=3404146861) by farge_goty
 - [View Mod in File Explorer Button](https://steamcommunity.com/sharedfiles/filedetails/?id=3510243964) by DarkNinja
-- [Modlist Hotload](url=https://steamcommunity.com/sharedfiles/filedetails/?id=3490018223) by farge_goty
+- [Modlist Hotload](https://steamcommunity.com/sharedfiles/filedetails/?id=3490018223) by farge_goty
