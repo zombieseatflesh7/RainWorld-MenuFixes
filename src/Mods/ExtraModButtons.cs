@@ -10,7 +10,6 @@ namespace MenuFixes.Mods;
 
 // Workshop button by farge_goty
 // File explorer button by DarkNinja
-
 public static class ExtraModButtons
 {
     private static ModManager.Mod _previewMod;

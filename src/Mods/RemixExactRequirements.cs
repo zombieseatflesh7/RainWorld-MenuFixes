@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace MenuFixes.Mods;
 
@@ -14,8 +13,9 @@ public static class RemixExactRequirements
     {
         try
         {
-            installedMods = ModManager.ActiveMods.ConvertAll(new Converter<ModManager.Mod, string>((mod) => { return mod.id; })).ToHashSet();
+            installedMods = ModManager.ActiveMods.ConvertAll(mod => mod.id).ToHashSet();
             On.Menu.Remix.InternalOI_Stats.FailedRequirementsString += InternalOI_Stats_FailedRequirementsString;
+            Plugin.Logger.LogInfo("Loaded Remix Exact Requirements");
         }
         catch (Exception e)
         {

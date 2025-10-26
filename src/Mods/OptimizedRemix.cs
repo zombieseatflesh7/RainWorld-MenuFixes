@@ -55,7 +55,7 @@ public static class OptimizedRemix
         greyscaleShader = FShader.Basic;
         try
         {
-            AssetBundle assetBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("menufixesbundle"));
+            AssetBundle assetBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/menufixesbundle"));
             greyscaleShader = FShader.CreateShader("OptimizedRemix.Greyscale", assetBundle.LoadAsset<Shader>("Assets/Shaders/Greyscale.shader"));
             RWCustom.Custom.rainWorld.Shaders.Add("OptimizedRemix.Greyscale", greyscaleShader);
             Plugin.Logger.LogInfo("Loaded Optimized Remix: greyscale shader");

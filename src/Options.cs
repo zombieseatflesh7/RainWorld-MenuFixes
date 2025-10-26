@@ -1,9 +1,6 @@
-﻿using Menu;
-using Menu.Remix.MixedUI;
+﻿using Menu.Remix.MixedUI;
 using System;
-using System.CodeDom;
 using System.IO;
-using System.Reflection;
 using UnityEngine;
 
 namespace MenuFixes;
@@ -21,6 +18,7 @@ internal class Options : OptionInterface
     {
         try
         {
+
             Instance.config.GetConfigPath();
             string path = Path.Combine(ConfigHolder.configDirPath, "MenuFixes" + ".txt");
             if (File.Exists(path))

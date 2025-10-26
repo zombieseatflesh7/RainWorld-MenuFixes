@@ -24,6 +24,7 @@
 		</ItemGroup>
 		<Copy SourceFiles="@(Assets)" DestinationFiles="$(RainWorldDir)/RainWorld_Data/StreamingAssets/mods/$(ProjectName)/%(RecursiveDir)%(Filename)%(Extension)" />
 		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll;$(TargetDir)$(ProjectName).pdb" DestinationFolder="$(RainWorldDir)/RainWorld_Data/StreamingAssets/mods/$(ProjectName)/plugins" />
-		<Copy SourceFiles="$(TargetDir)\K4os.Hash.xxHash.dll;&#xD;&#xA;			  $(TargetDir)\TeximpNet.dll;&#xD;&#xA;			  $(TargetDir)\System.Runtime.CompilerServices.Unsafe.dll;&#xD;&#xA;			  $(TargetDir)\System.Numerics.Vectors.dll;&#xD;&#xA;			  $(TargetDir)\System.Memory.dll;&#xD;&#xA;			  $(TargetDir)\System.Buffers.dll;" DestinationFolder="$(RainWorldDir)/RainWorld_Data/StreamingAssets/mods/$(ProjectName)/plugins" />
+		<Copy SourceFiles="$(TargetDir)\K4os.Hash.xxHash.dll;$(TargetDir)\TeximpNet.dll;$(TargetDir)\System.Runtime.CompilerServices.Unsafe.dll;$(TargetDir)\System.Numerics.Vectors.dll;$(TargetDir)\System.Memory.dll;$(TargetDir)\System.Buffers.dll;" DestinationFolder="$(RainWorldDir)/RainWorld_Data/StreamingAssets/mods/$(ProjectName)/plugins" />
+		<Copy SourceFiles="$(ProjectDir)../CONTRIBUTORS.txt" DestinationFolder="$(RainWorldDir)/RainWorld_Data/StreamingAssets/mods/$(ProjectName)" />
 	</Target>
 </Project>
