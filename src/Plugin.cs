@@ -26,19 +26,25 @@ public class Plugin : BaseUnityPlugin
 
     public void OnEnable()
     {
+        Logger = base.Logger;
+
+        On.Menu.InitializationScreen.ctor += PreInitialization;
+        On.RainWorld.OnModsInit += OnModsInit;
+    }
+
+    private void PreInitialization(On.Menu.InitializationScreen.orig_ctor orig, Menu.InitializationScreen self, ProcessManager manager)
+    {
         try
         {
-            Logger = base.Logger;
-
-            On.RainWorld.OnModsInit += OnModsInit;
-            On.Menu.InitializationScreen.ctor += Options.EarlyLoadConfigs;
-
+            Options.EarlyLoadConfigs();
             if (!Compat.NMUC())
                 NoModUpdateConfirm.AddHooks();
             if (!Compat.RAR())
-                Mods.RemixAutoRestart.AddHooks();
+                Mods.RemixAutoRestart.Init();
         }
         catch (Exception e) { Logger.LogError(e); }
+
+        orig(self, manager);
     }
 
     private void OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)

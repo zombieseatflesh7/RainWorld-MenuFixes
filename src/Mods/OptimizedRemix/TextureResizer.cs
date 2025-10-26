@@ -169,7 +169,7 @@ internal class TextureResizer
                 // FileNeedsUpdate now handles metadata + streamed hash verification
                 if (!FileNeedsUpdate(thumbnailPath))
                 {
-                    Plugin.Logger.LogDebug($"Skipping unchanged: {thumbnailPath}");
+                    //Plugin.Logger.LogDebug($"Skipping unchanged: {thumbnailPath}");
                     return;
                 }
 

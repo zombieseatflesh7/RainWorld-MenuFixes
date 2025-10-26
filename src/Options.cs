@@ -11,15 +11,14 @@ namespace MenuFixes;
 internal class Options : OptionInterface
 {
     public static readonly Options Instance = new Options();
-    
+
+    public static Configurable<bool> RemixAutoRestart_Enabled = Instance.config.Bind("RemixAutoRestart_Enabled", true);
     public static Configurable<bool> NMUC_onModUpdate = Instance.config.Bind("NMUC_onModUpdate", true);
     public static Configurable<bool> NMUC_onModReload = Instance.config.Bind("NMUC_onModReload", true);
     public static Configurable<float> NMUC_delay = Instance.config.Bind("NMUC_delay", 0.0f, new ConfigAcceptableRange<float>(0.0f, 5.0f));
 
-    public static void EarlyLoadConfigs(On.Menu.InitializationScreen.orig_ctor orig, InitializationScreen self, ProcessManager manager)
+    public static void EarlyLoadConfigs()
     {
-        orig(self, manager);
-
         try
         {
             Instance.config.GetConfigPath();
@@ -49,6 +48,8 @@ internal class Options : OptionInterface
                                 NMUC_onModReload.Value = bool.Parse(value); break;
                             case "NMUC_delay":
                                 NMUC_delay.Value = float.Parse(value); break;
+                            case "RemixAutoRestart_Enabled":
+                                RemixAutoRestart_Enabled.Value = bool.Parse(value); break;
                         }
                     }
                     catch (Exception e) { Plugin.Logger.LogError(e); }
@@ -63,24 +64,30 @@ internal class Options : OptionInterface
     public override void Initialize()
     {
         // No Mod Update Confirm
-        OpTab NMUC_Tab = new(this, "NMUC");
-        Tabs = [NMUC_Tab];
+        OpTab tab = new(this, "Options");
+        Tabs = [tab];
+
+        float y = 440f;
         UIelement[] elements = [
-            new OpLabel(new Vector2(150f, 520f), new Vector2(300f, 30f), "No Mod Update Confirm", FLabelAlignment.Center, bigText: true),
-            new OpLabel(60f, 460f, "Skip mod update confirm"),
-            new OpCheckBox(NMUC_onModUpdate, new Vector2(10f, 460f)) {
+            new OpLabel(50f, y, "Remix Auto Restarter"),
+            new OpCheckBox(RemixAutoRestart_Enabled, new Vector2(10f, y)) {
+                description = "Automatically restart the game after applying mods"
+            },
+            new OpLabel(new Vector2(150f, 520f), new Vector2(300f, 30f), "Many Menu Fixes", FLabelAlignment.Center, bigText: true),
+            new OpLabel(new(50f, y -= 60), default, "Skip mod update confirm", FLabelAlignment.Left),
+            new OpCheckBox(NMUC_onModUpdate, new Vector2(10f, y)) {
                 description = "Skips the confirm dialog after updating the mods on the first load screen"
             },
-            new OpLabel(60f, 430f, "Skip mod reload confirm"),
-            new OpCheckBox(NMUC_onModReload, new Vector2(10f, 430f)) {
+            new OpLabel(new(50f, y -= 40f), default, "Skip mod reload confirm", FLabelAlignment.Left),
+            new OpCheckBox(NMUC_onModReload, new Vector2(10f, y)) {
                 description = "Skips the confirm dialog after applying changes in the remix menu"
             },
-            new OpLabel(120f, 400f, "Delay"),
-            new OpUpdown(NMUC_delay, new Vector2(10f, 395f), 100) {
-                description = "Turn this up if the game closes before changes can be written"
+            new OpLabel(new(80f, y -= 40f), default, "Skip confirm delay", FLabelAlignment.Left),
+            new OpUpdown(NMUC_delay, new Vector2(10f, y), 60) {
+                description = "Additional delay before skipping the confirm dialog"
             }
         ];
-        NMUC_Tab.AddItems(elements);
+        tab.AddItems(elements);
 
     }
 

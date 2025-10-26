@@ -8,10 +8,25 @@ namespace MenuFixes.Mods;
 // RemixAutoRestart by Gamer025
 public static class RemixAutoRestart
 {
+    private static bool enabled => Options.RemixAutoRestart_Enabled.Value;
+    private static bool hooked = false;
     private static bool restarting = false;
+
+    public static void Init()
+    {
+        Options.Instance.OnConfigChanged += () =>
+        {
+            if (enabled && !hooked) AddHooks();
+            else if (!enabled && hooked) RemoveHooks();
+        };
+
+        if (enabled)
+            AddHooks();
+    }
 
     public static void AddHooks()
     {
+        hooked = true;
         try
         {
             On.Menu.InitializationScreen.Singal += InitializationScreen_Signal;
@@ -23,6 +38,14 @@ public static class RemixAutoRestart
             Plugin.Logger.LogError("Failed to load Remix Auto Restarter");
             Plugin.Logger.LogError(e); 
         }
+    }
+
+    private static void RemoveHooks()
+    {
+        hooked = false;
+        On.Menu.InitializationScreen.Singal -= InitializationScreen_Signal;
+        On.Menu.ModdingMenu.Singal -= ModdingMenu_Singal;
+        Plugin.Logger.LogInfo("Unloaded Remix Auto Restarter");
     }
 
     private static void InitializationScreen_Signal(On.Menu.InitializationScreen.orig_Singal orig, Menu.InitializationScreen self, Menu.MenuObject sender, string message)
