@@ -15,6 +15,9 @@ public static class OptimizedRemix
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
     internal static extern IntPtr LoadLibraryA(string lpLibFileName);
 
+    public static bool loadThumbnails => Options.ORM_LoadThumbnails.Value;
+    public static bool resizeLocalThumbnails => Options.ORM_ResizeLocalThumbnails.Value;
+
     public static FShader greyscaleShader;
 
     public static void Init()
@@ -22,21 +25,26 @@ public static class OptimizedRemix
         ResizeThumbnails();
         LoadShader();
         AddHooks();
+        Options.Instance.OnConfigChanged += ResizeThumbnails;
     }
 
+    private static bool hasResizedThumbnails = false;
     private static void ResizeThumbnails()
     {
+        if (hasResizedThumbnails || !loadThumbnails) return;
+
         try
         {
+            hasResizedThumbnails = true;
+
             LoadLibraryA(AssetManager.ResolveFilePath("native/nvtt.dll"));
             LoadLibraryA(AssetManager.ResolveFilePath("native/FreeImage.dll"));
 
             List<string> modPNGList = new List<string>(ModManager.InstalledMods.Count);
             foreach (var m in ModManager.InstalledMods)
             {
-                string modFolder = m.path;
-                string modThumbnailPath = Path.Combine(modFolder, "thumbnail.png");
-                if (File.Exists(modThumbnailPath))
+                string modThumbnailPath = Path.Combine(m.path, "thumbnail.png");
+                if (File.Exists(modThumbnailPath) && (m.workshopMod || resizeLocalThumbnails))
                 {
                     modPNGList.Add(modThumbnailPath);
                 }
@@ -183,6 +191,12 @@ public static class OptimizedRemix
         c.Emit(OpCodes.Ldarg_1); // MenuModList.ModButton button
         c.EmitDelegate((InternalOI_Stats stats, MenuModList.ModButton button) =>
         {
+            if (!loadThumbnails)
+            {
+                stats.imgThumbnail.Hide();
+                return;
+            }
+
             string thumbnailName = ConfigContainer._GetThumbnailName(button.itf.mod.id);
             if (!button._thumbLoaded && !Futile.atlasManager.DoesContainAtlas(thumbnailName))
                 LoadModThumbnail(button);
@@ -243,6 +257,12 @@ public static class OptimizedRemix
     // rewritten to load the thumbnail as needed and use FSprite
     private static void ModButton_ProcessThumbnail(On.Menu.Remix.MenuModList.ModButton.orig__ProcessThumbnail orig, MenuModList.ModButton self)
     {
+        if (!loadThumbnails)
+        {
+            self._thumbBlank = true;
+            return;
+        }
+
         try
         {
             if (!self._thumbLoaded)
@@ -343,7 +363,9 @@ public static class OptimizedRemix
             texture.LoadImage(data);
             if (texture.width != 426 || texture.height != 240)
             {
-                Plugin.Logger.LogWarning($"Thumbnail has incorrect dimensions - {thumbnailPath}");
+                if (mod.workshopMod || (!mod.workshopMod && resizeLocalThumbnails))
+                    Plugin.Logger.LogWarning($"Thumbnail has incorrect dimensions - {thumbnailPath}");
+
                 TextureScale.Bilinear(texture, 426, 240);
             }
             ConfigContainer._TrimModThumbnail(ref texture);

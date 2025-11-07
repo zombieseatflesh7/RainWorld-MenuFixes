@@ -21,7 +21,6 @@ internal class TextureResizer
 
     private TextureResizer()
     {
-        // resolves to: %MOD_FOLDE%/textureCache.json
         _cachePath = "RainWorld_Data/StreamingAssets/optimizedRemixTextureCache.json";
 
         if (File.Exists(_cachePath))

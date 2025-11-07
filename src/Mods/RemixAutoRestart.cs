@@ -8,7 +8,8 @@ namespace MenuFixes.Mods;
 // RemixAutoRestart by Gamer025
 public static class RemixAutoRestart
 {
-    private static bool enabled => Options.RemixAutoRestart_Enabled.Value;
+    private static bool enabled => Options.RAR_Enabled.Value;
+    private static bool useSteam => Options.RAR_UseSteam.Value;
     private static bool hooked = false;
     private static bool restarting = false;
 
@@ -73,7 +74,7 @@ public static class RemixAutoRestart
 
         try
         {
-            if (RWCustom.Custom.rainWorld.processManager.mySteamManager != null) // steam version
+            if (useSteam && RWCustom.Custom.rainWorld.processManager.mySteamManager != null) // steam version
             {
                 string steamUrl = $"steam://rungameid/{312520}";
                 Process.Start(new ProcessStartInfo
