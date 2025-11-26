@@ -43,10 +43,14 @@ public static class RemixAutoRestart
 
     private static void RemoveHooks()
     {
-        hooked = false;
-        On.Menu.InitializationScreen.Singal -= InitializationScreen_Signal;
-        On.Menu.ModdingMenu.Singal -= ModdingMenu_Singal;
-        Plugin.Logger.LogInfo("Unloaded Remix Auto Restarter");
+        try
+        {
+            hooked = false;
+            On.Menu.InitializationScreen.Singal -= InitializationScreen_Signal;
+            On.Menu.ModdingMenu.Singal -= ModdingMenu_Singal;
+            Plugin.Logger.LogInfo("Unloaded Remix Auto Restarter");
+        }
+        catch (InvalidOperationException e) { }
     }
 
     private static void InitializationScreen_Signal(On.Menu.InitializationScreen.orig_Singal orig, Menu.InitializationScreen self, Menu.MenuObject sender, string message)

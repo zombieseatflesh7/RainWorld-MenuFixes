@@ -26,8 +26,12 @@ public static class ScrollFix
 
     private static void RemoveHooks()
     {
-        IL.Menu.Menu.Update -= Menu_UpdateIL;
-        On.MainLoopProcess.RawUpdate -= MainLoopProcess_RawUpdate;
+        try
+        {
+            IL.Menu.Menu.Update -= Menu_UpdateIL;
+            On.MainLoopProcess.RawUpdate -= MainLoopProcess_RawUpdate;
+        }
+        catch (InvalidOperationException e) { }
     }
 
     private static void MainLoopProcess_RawUpdate(On.MainLoopProcess.orig_RawUpdate orig, MainLoopProcess self, float dt)

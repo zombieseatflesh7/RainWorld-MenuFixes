@@ -17,7 +17,7 @@ public class Plugin : BaseUnityPlugin
 {
     public const string GUID = "zombieseatflesh7.MenuFixes";
     public const string NAME = "Menu Fixes";
-    public const string VERSION = "1.0.1";
+    public const string VERSION = "1.0.2";
 
     public static new BepInEx.Logging.ManualLogSource Logger;
     private static bool initialized = false;

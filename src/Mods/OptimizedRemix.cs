@@ -127,15 +127,19 @@ public static class OptimizedRemix
 
     public static void RemoveHooks()
     {
-        On.Menu.Remix.ConfigContainer.QueueModThumbnails -= QueueModThumbnails;
-        On.Menu.Remix.ConfigContainer._LoadModThumbnail -= ConfigContainer_LoadModThumbnail;
-        IL.Menu.Remix.InternalOI_Stats.Initialize -= InternalOI_Stats_Initialize_IL;
-        IL.Menu.Remix.InternalOI_Stats._PreviewMod -= PreviewMod_IL;
-        IL.Menu.Remix.MenuModList.ModButton.ctor -= ModButton_Ctor_IL;
-        On.Menu.Remix.MenuModList.ModButton._ProcessThumbnail -= ModButton_ProcessThumbnail;
-        On.Menu.Remix.MenuModList.ModButton._UpdateThumbnail -= ModButton_UpdateThumbnail;
-        IL.Menu.Remix.MenuModList.ModButton.GrafUpdate -= ModButton_GrafUpdate_IL;
-        On.Menu.Remix.MenuModList.ModButton.UnloadUI -= ModButton_UnloadUI;
+        try
+        {
+            On.Menu.Remix.ConfigContainer.QueueModThumbnails -= QueueModThumbnails;
+            On.Menu.Remix.ConfigContainer._LoadModThumbnail -= ConfigContainer_LoadModThumbnail;
+            IL.Menu.Remix.InternalOI_Stats.Initialize -= InternalOI_Stats_Initialize_IL;
+            IL.Menu.Remix.InternalOI_Stats._PreviewMod -= PreviewMod_IL;
+            IL.Menu.Remix.MenuModList.ModButton.ctor -= ModButton_Ctor_IL;
+            On.Menu.Remix.MenuModList.ModButton._ProcessThumbnail -= ModButton_ProcessThumbnail;
+            On.Menu.Remix.MenuModList.ModButton._UpdateThumbnail -= ModButton_UpdateThumbnail;
+            IL.Menu.Remix.MenuModList.ModButton.GrafUpdate -= ModButton_GrafUpdate_IL;
+            On.Menu.Remix.MenuModList.ModButton.UnloadUI -= ModButton_UnloadUI;
+        }
+        catch (InvalidOperationException e) { }
     }
 
     // Removing these functions
