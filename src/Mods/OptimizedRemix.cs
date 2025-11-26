@@ -1,4 +1,5 @@
 ﻿using Menu.Remix;
+using Menu.Remix.MixedUI;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System;
@@ -92,7 +93,7 @@ public static class OptimizedRemix
             On.Menu.Remix.MenuModList.ModButton._ProcessThumbnail += ModButton_ProcessThumbnail;
             On.Menu.Remix.MenuModList.ModButton._UpdateThumbnail += ModButton_UpdateThumbnail;
             IL.Menu.Remix.MenuModList.ModButton.GrafUpdate += ModButton_GrafUpdate_IL;
-            On.Menu.Remix.MenuModList.ModButton.UnloadUI += ModButton_UnloadUI;
+            IL.Menu.Remix.MenuModList.ModButton.UnloadUI += ModButton_UnloadUI_IL;
 
             // exception logging
             On.Menu.Remix.InternalOI_Stats.Initialize += (orig, self) =>
@@ -114,6 +115,11 @@ public static class OptimizedRemix
             {
                 try { orig(self, timeStacker); }
                 catch (Exception e) { Plugin.Logger.LogError(e); }
+            };
+            On.Menu.Remix.MenuModList.ModButton.UnloadUI += (orig, self) =>
+            {
+                try { orig(self); }
+                catch (Exception e) { Debug.LogException(e); }
             };
             Plugin.Logger.LogInfo("Loaded Optimized Remix: hooks");
         }
@@ -137,7 +143,7 @@ public static class OptimizedRemix
             On.Menu.Remix.MenuModList.ModButton._ProcessThumbnail -= ModButton_ProcessThumbnail;
             On.Menu.Remix.MenuModList.ModButton._UpdateThumbnail -= ModButton_UpdateThumbnail;
             IL.Menu.Remix.MenuModList.ModButton.GrafUpdate -= ModButton_GrafUpdate_IL;
-            On.Menu.Remix.MenuModList.ModButton.UnloadUI -= ModButton_UnloadUI;
+            IL.Menu.Remix.MenuModList.ModButton.UnloadUI -= ModButton_UnloadUI_IL;
         }
         catch (InvalidOperationException e) { }
     }
@@ -154,19 +160,18 @@ public static class OptimizedRemix
     {
         ILCursor c = new ILCursor(il);
 
-        // Texture2D image = new Texture2D(1, 1, TextureFormat.ARGB32, mipChain: false);
-        // imgThumbnail = new OpImage(default(Vector2), image);
+        // imgThumbnail = new OpImage(default(Vector2), Texture2D.whiteTexture);
         c.GotoNext(
-            i => i.MatchLdcI4(1),
-            i => i.MatchLdcI4(1),
-            i => i.MatchLdcI4(5),
-            i => i.MatchLdcI4(0),
-            i => i.MatchNewobj<Texture2D>(),
-            i => i.MatchStloc(2)
+            i => i.MatchLdloca(2),
+            i => i.MatchInitobj<Vector2>(),
+            i => i.MatchLdloc(2),
+            i => i.MatchCall<Texture2D>("get_whiteTexture"),
+            i => i.MatchNewobj<OpImage>(),
+            i => i.MatchStfld<InternalOI_Stats>("imgThumbnail")
             );
-        c.RemoveRange(13);
+        c.RemoveRange(6);
 
-        c.Emit(OpCodes.Ldarg_0);
+        // ldarg.0 already present
         c.EmitDelegate((InternalOI_Stats stats) =>
         {
             stats.imgThumbnail = new Menu.Remix.MixedUI.OpImage(default, ConfigContainer._GetThumbnailName(MenuModList.ModButton.RainWorldDummy.mod.id));
@@ -178,18 +183,20 @@ public static class OptimizedRemix
     {
         ILCursor c = new ILCursor(il);
 
-        c.GotoNext(
-            i => i.MatchLdloc(0),
-            i => i.MatchLdfld<ModManager.Mod>("id"),
-            i => i.MatchCall<ConfigContainer>("_GetThumbnailName")
+        c.GotoNext( // FAtlas atlasWithName = Futile.atlasManager.GetAtlasWithName(name);
+            i => i.MatchLdsfld<Futile>("atlasManager"),
+            i => i.MatchLdloc(1),
+            i => i.MatchCallOrCallvirt<FAtlasManager>("GetAtlasWithName")
             );
-        int index = c.Index + 4; // IL_0048: ldsfld class FAtlasManager Futile::atlasManager
-                                 // if (atlasWithName != null)
-        c.GotoNext(i => i.Match(OpCodes.Brfalse_S)); // IL_0055: brfalse.s IL_00c0 // beginning of if block
-                                                     // else
-        c.GotoLabel(c.Next.Operand as ILLabel); // IL_00c0: ldarg.1 // beginning of else block
-        ILLabel destination = c.Prev.Operand as ILLabel; // label points to end of if / else block
+        int index = c.Index; // IL_0048: ldsfld class FAtlasManager Futile::atlasManager
 
+        c.GotoNext( // if (mod.DLCMissing)
+            i => i.MatchLdloc(0),
+            i => i.MatchCallOrCallvirt<ModManager.Mod>("get_DLCMissing"),
+            i => i.Match(OpCodes.Brfalse_S)
+            );
+        ILLabel destination = c.MarkLabel(); // IL_00ea: ldloc.0
+                                       
         c.Goto(index);
         c.Emit(OpCodes.Ldarg_0); // this
         c.Emit(OpCodes.Ldarg_1); // MenuModList.ModButton button
@@ -205,14 +212,17 @@ public static class OptimizedRemix
             if (!button._thumbLoaded && !Futile.atlasManager.DoesContainAtlas(thumbnailName))
                 LoadModThumbnail(button);
 
-            if (button._thumbBlank) // button._thumbnail blank is probably an uneccessary check
+            if (button._thumbBlank)
             {
                 stats.imgThumbnail.Hide();
-                // TODO load default image
             }
             else
             {
                 stats.imgThumbnail.ChangeElement(thumbnailName);
+                if (button.itf.mod.DLCMissing)
+                    stats.imgThumbnail.sprite.shader = greyscaleShader;
+                else
+                    stats.imgThumbnail.sprite.shader = FShader.Basic;
                 stats.imgThumbnail.Show();
             }
         });
@@ -326,15 +336,21 @@ public static class OptimizedRemix
         }
     }
 
-    // unload the new FSprite thumbnail
-    private static void ModButton_UnloadUI(On.Menu.Remix.MenuModList.ModButton.orig_UnloadUI orig, MenuModList.ModButton self)
+    private static void ModButton_UnloadUI_IL(ILContext il)
     {
-        try
+        ILCursor c = new ILCursor(il);
+
+        c.GotoNext( // _thumbnail.Destroy();
+            i => i.MatchLdfld<MenuModList.ModButton>("_thumbnail"),
+            i => i.MatchCallOrCallvirt<FTexture>("Destroy")
+            );
+        c.RemoveRange(2); // this code errors because _thumbnail is null (intentional)
+
+        // unload the new FSprite thumbnail
+        c.EmitDelegate((MenuModList.ModButton self) =>
         {
             modButtonThumbnails.Remove(self);
-            orig(self);
-        }
-        catch (Exception e) { Plugin.Logger.LogError(e); }
+        });
     }
 
     private static void LoadModThumbnail(MenuModList.ModButton button)
